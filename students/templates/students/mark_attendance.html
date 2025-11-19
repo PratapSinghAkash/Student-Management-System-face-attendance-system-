@@ -1,0 +1,101 @@
+{% extends 'students/base.html' %}
+
+{% block title %}Mark Attendance - Attendance System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">
+            <i class="bi bi-camera"></i> Face Recognition Attendance
+        </h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Camera Setup</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <h5><i class="bi bi-info-circle"></i> Face Recognition Setup Required</h5>
+                    <p class="mb-2">
+                        To enable face recognition, you need to install the <code>face_recognition</code> library:
+                    </p>
+                    <pre class="bg-light p-2 rounded mb-2"><code>pip install face-recognition</code></pre>
+                    <p class="mb-2">
+                        <strong>Note:</strong> This library requires <code>dlib</code> and <code>cmake</code> to be installed on your system.
+                    </p>
+                    <p class="mb-0">
+                        <strong>For Ubuntu/Debian:</strong>
+                    </p>
+                    <pre class="bg-light p-2 rounded mb-2"><code>sudo apt-get install cmake
+sudo apt-get install libopenblas-dev liblapack-dev
+pip install dlib
+pip install face-recognition</code></pre>
+                    <p class="mb-0">
+                        <strong>For macOS:</strong>
+                    </p>
+                    <pre class="bg-light p-2 rounded mb-2"><code>brew install cmake
+pip install dlib
+pip install face-recognition</code></pre>
+                </div>
+
+                <div class="text-center py-5 bg-light rounded">
+                    <i class="bi bi-camera-video display-1 text-muted"></i>
+                    <h4 class="mt-3">Camera Preview</h4>
+                    <p class="text-muted">Camera will appear here after face_recognition is installed</p>
+                    <div id="camera-container" style="min-height: 300px;">
+                        <video id="video" width="640" height="480" autoplay style="display:none;"></video>
+                        <canvas id="canvas" style="display:none;"></canvas>
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <h6>How it works:</h6>
+                    <ol>
+                        <li>Install the face_recognition library using the commands above</li>
+                        <li>Allow camera access when prompted</li>
+                        <li>Position your face in front of the camera</li>
+                        <li>The system will automatically detect and match your face</li>
+                        <li>Attendance will be marked automatically</li>
+                    </ol>
+                </div>
+
+                <div class="d-grid gap-2 mt-3">
+                    <a href="{% url 'manual_attendance' %}" class="btn btn-secondary btn-lg">
+                        <i class="bi bi-pencil-square"></i> Use Manual Attendance Instead
+                    </a>
+                    <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-house"></i> Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Placeholder for face recognition JavaScript
+// This would contain the webcam capture and face recognition logic
+// when the face_recognition library is properly installed
+
+const video = document.getElementById('video');
+const canvas = document.getElementById('canvas');
+
+// Try to access the webcam
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(function(stream) {
+            video.srcObject = stream;
+            video.style.display = 'block';
+        })
+        .catch(function(err) {
+            console.log("Camera access error: " + err);
+        });
+}
+</script>
+{% endblock %}
