@@ -1,0 +1,133 @@
+{% extends 'students/base.html' %}
+
+{% block title %}Home - Attendance System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">
+            <i class="bi bi-speedometer2"></i> Dashboard
+        </h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card stats-card primary">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Total Students</h6>
+                        <h2 class="mb-0">{{ total_students }}</h2>
+                    </div>
+                    <div class="text-primary">
+                        <i class="bi bi-people fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card stats-card success">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Today's Attendance</h6>
+                        <h2 class="mb-0">{{ today_attendance }}</h2>
+                    </div>
+                    <div class="text-success">
+                        <i class="bi bi-check-circle fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card stats-card info">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-1">Total Courses</h6>
+                        <h2 class="mb-0">{{ total_courses }}</h2>
+                    </div>
+                    <div class="text-info">
+                        <i class="bi bi-book fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-lightning"></i> Quick Actions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'mark_attendance' %}" class="btn btn-primary btn-lg">
+                        <i class="bi bi-camera"></i> Mark Attendance with Face Recognition
+                    </a>
+                    <a href="{% url 'manual_attendance' %}" class="btn btn-secondary btn-lg">
+                        <i class="bi bi-pencil-square"></i> Manual Attendance Entry
+                    </a>
+                    <a href="{% url 'student_create' %}" class="btn btn-success btn-lg">
+                        <i class="bi bi-person-plus"></i> Add New Student
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-clock-history"></i> Recent Attendance
+                </h5>
+            </div>
+            <div class="card-body" style="max-height: 300px; overflow-y: auto;">
+                {% if recent_attendance %}
+                    <ul class="list-group list-group-flush">
+                        {% for attendance in recent_attendance %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>{{ attendance.student.get_full_name }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ attendance.date }} at {{ attendance.time|time:"H:i" }}</small>
+                                </div>
+                                <span class="badge bg-{% if attendance.status == 'present' %}success{% elif attendance.status == 'late' %}warning{% else %}danger{% endif %}">
+                                    {{ attendance.get_status_display }}
+                                </span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-muted text-center mb-0">No attendance records yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body text-center">
+                <h4>Welcome to the Automatic Attendance System</h4>
+                <p class="text-muted">
+                    This system uses face recognition technology to automatically track student attendance.
+                    Get started by adding students and marking their attendance using the camera.
+                </p>
+                <a href="{% url 'student_list' %}" class="btn btn-primary">
+                    <i class="bi bi-arrow-right"></i> View All Students
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

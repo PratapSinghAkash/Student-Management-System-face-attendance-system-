@@ -1,0 +1,139 @@
+{% extends 'students/base.html' %}
+
+{% block title %}Attendance Report - Attendance System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">
+            <i class="bi bi-file-earmark-text"></i> Attendance Report
+        </h1>
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <div class="col-md-3">
+                        <label for="start_date" class="form-label">Start Date</label>
+                        <input type="date" name="start_date" id="start_date" class="form-control" 
+                               value="{{ start_date|date:'Y-m-d' }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="end_date" class="form-label">End Date</label>
+                        <input type="date" name="end_date" id="end_date" class="form-control" 
+                               value="{{ end_date|date:'Y-m-d' }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="department" class="form-label">Department</label>
+                        <select name="department" id="department" class="form-select">
+                            <option value="">All Departments</option>
+                            {% for dept in departments %}
+                                <option value="{{ dept }}" {% if dept == selected_department %}selected{% endif %}>
+                                    {{ dept }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">&nbsp;</label>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-search"></i> Generate Report
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        {% if student_stats %}
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        Attendance Statistics 
+                        ({{ start_date|date:"Y-m-d" }} to {{ end_date|date:"Y-m-d" }})
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Roll Number</th>
+                                    <th>Name</th>
+                                    <th>Department</th>
+                                    <th>Total Days</th>
+                                    <th>Present</th>
+                                    <th>Absent</th>
+                                    <th>Percentage</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for stat in student_stats %}
+                                    <tr>
+                                        <td>{{ stat.student.roll_number }}</td>
+                                        <td>
+                                            <a href="{% url 'student_detail' stat.student.pk %}">
+                                                {{ stat.student.get_full_name }}
+                                            </a>
+                                        </td>
+                                        <td>{{ stat.student.department }}</td>
+                                        <td>{{ stat.total }}</td>
+                                        <td class="text-success">{{ stat.present }}</td>
+                                        <td class="text-danger">{{ stat.absent }}</td>
+                                        <td>
+                                            <strong>{{ stat.percentage }}%</strong>
+                                        </td>
+                                        <td>
+                                            {% if stat.percentage >= 75 %}
+                                                <span class="badge bg-success">Good</span>
+                                            {% elif stat.percentage >= 60 %}
+                                                <span class="badge bg-warning">Average</span>
+                                            {% else %}
+                                                <span class="badge bg-danger">Poor</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i> No attendance records found for the selected criteria.
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row mt-3">
+    <div class="col-12">
+        <a href="{% url 'home' %}" class="btn btn-secondary">
+            <i class="bi bi-house"></i> Back to Home
+        </a>
+        {% if student_stats %}
+            <button onclick="window.print()" class="btn btn-primary">
+                <i class="bi bi-printer"></i> Print Report
+            </button>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+@media print {
+    .navbar, footer, .btn, .card-body form {
+        display: none !important;
+    }
+}
+</style>
+{% endblock %}
