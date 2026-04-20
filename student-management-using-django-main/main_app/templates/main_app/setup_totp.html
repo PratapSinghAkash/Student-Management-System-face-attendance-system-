@@ -1,0 +1,280 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Set Up Two-Factor Authentication</title>
+    <link rel="stylesheet" href="{% static 'plugins/fontawesome-free/css/all.min.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #0e1d2b;
+            --bg-mid: #17364d;
+            --bg-soft: #265067;
+            --mint: #34d2ad;
+            --mint-strong: #189b7b;
+            --danger: #e04f59;
+            --danger-strong: #c63842;
+            --text-main: #f3f8fc;
+            --text-muted: #bed0df;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: var(--text-main);
+            background:
+                radial-gradient(circle at 15% 20%, rgba(52, 210, 173, 0.2), transparent 40%),
+                radial-gradient(circle at 84% 78%, rgba(91, 164, 255, 0.22), transparent 45%),
+                linear-gradient(130deg, var(--bg-deep), var(--bg-mid) 52%, var(--bg-soft));
+        }
+
+        .card {
+            width: 100%;
+            max-width: 620px;
+            border-radius: 24px;
+            padding: 32px 30px;
+            background: rgba(10, 25, 38, 0.84);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            box-shadow: 0 24px 45px rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(8px);
+            animation: cardIn 0.45s ease-out;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .badge {
+            width: 48px;
+            height: 48px;
+            border-radius: 13px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(145deg, #3ce8be, #26b58f);
+            color: #08372b;
+            font-size: 20px;
+            box-shadow: 0 10px 20px rgba(52, 210, 173, 0.32);
+        }
+
+        h2 {
+            margin: 0;
+            font-size: 29px;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            margin: 0 0 18px;
+            color: var(--text-muted);
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .alert {
+            border-radius: 12px;
+            margin-bottom: 14px;
+            padding: 11px 12px;
+            border: 1px solid;
+            font-size: 14px;
+        }
+
+        .alert.error {
+            background: rgba(224, 79, 89, 0.18);
+            color: #ffd6d9;
+            border-color: rgba(255, 148, 154, 0.48);
+        }
+
+        .alert.success {
+            background: rgba(52, 210, 173, 0.16);
+            color: #d7fff1;
+            border-color: rgba(121, 255, 212, 0.5);
+        }
+
+        .qr-wrap {
+            text-align: center;
+            margin: 14px 0 18px;
+            padding: 18px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+        }
+
+        .qr-wrap img {
+            max-width: 220px;
+            width: 100%;
+            border-radius: 12px;
+            background: #fff;
+            padding: 6px;
+        }
+
+        .meta {
+            margin: 0 0 12px;
+            color: #d8e6ef;
+            font-size: 14px;
+        }
+
+        .meta strong {
+            color: #f7fdff;
+        }
+
+        .secret {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px dashed rgba(255, 255, 255, 0.32);
+            padding: 11px;
+            border-radius: 10px;
+            font-family: Consolas, monospace;
+            text-align: center;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            color: #eef8ff;
+            word-break: break-all;
+        }
+
+        .field-wrap {
+            position: relative;
+        }
+
+        .field-wrap i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #84d7c0;
+            font-size: 15px;
+        }
+
+        .input {
+            width: 100%;
+            height: 52px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.24);
+            background: rgba(255, 255, 255, 0.07);
+            color: var(--text-main);
+            padding: 0 14px 0 42px;
+            font-size: 18px;
+            letter-spacing: 7px;
+            text-align: center;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .input::placeholder {
+            color: rgba(194, 215, 229, 0.7);
+        }
+
+        .input:focus {
+            outline: none;
+            border-color: rgba(52, 210, 173, 0.95);
+            box-shadow: 0 0 0 4px rgba(52, 210, 173, 0.2);
+        }
+
+        .btn {
+            margin-top: 14px;
+            width: 100%;
+            height: 52px;
+            border: 0;
+            border-radius: 14px;
+            color: #02261d;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--mint), var(--mint-strong));
+            box-shadow: 0 14px 24px rgba(52, 210, 173, 0.3);
+        }
+
+        .btn-danger {
+            color: #fff5f6;
+            background: linear-gradient(135deg, var(--danger), var(--danger-strong));
+            box-shadow: 0 14px 24px rgba(224, 79, 89, 0.28);
+        }
+
+        .divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.18);
+            margin: 18px 0;
+        }
+
+        @keyframes cardIn {
+            from {
+                opacity: 0;
+                transform: translateY(12px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .card {
+                padding: 26px 20px;
+                border-radius: 20px;
+            }
+
+            h2 {
+                font-size: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="header">
+            <div class="badge"><i class="fas fa-mobile-alt"></i></div>
+            <h2>Set Up Two-Factor Authentication</h2>
+        </div>
+        <p class="subtitle">Scan this QR code in Google Authenticator or any TOTP app, then enter the 6-digit code to enable 2FA.</p>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert {% if message.tags == 'success' %}success{% else %}error{% endif %}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="qr-wrap">
+            <img src="data:image/png;base64,{{ qr_b64 }}" alt="TOTP QR Code">
+        </div>
+
+        <p class="meta"><strong>Account:</strong> {{ account_name }}</p>
+        <p class="meta"><strong>Issuer:</strong> {{ issuer }}</p>
+        <div class="secret">{{ totp_secret }}</div>
+
+        <form method="post" action="{% url 'setup_totp' %}">
+            {% csrf_token %}
+            <div class="field-wrap">
+                <i class="fas fa-key"></i>
+                <input class="input" type="text" name="otp" maxlength="6" placeholder="123456" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]{6}" required>
+            </div>
+            <button class="btn btn-primary" type="submit">Enable 2FA</button>
+        </form>
+
+        <div class="divider"></div>
+
+        <form method="post" action="{% url 'disable_totp' %}">
+            {% csrf_token %}
+            <button class="btn btn-danger" type="submit">Disable 2FA</button>
+        </form>
+    </div>
+</body>
+</html>

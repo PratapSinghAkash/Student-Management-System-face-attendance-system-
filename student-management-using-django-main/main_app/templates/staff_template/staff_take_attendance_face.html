@@ -1,0 +1,435 @@
+{% extends 'main_app/base.html' %}
+{% load static %}
+{% block page_title %}{{page_title}}{% endblock page_title %}
+{% block custom_css %}
+<style>
+    #video, #canvas {
+        width: 100%;
+        max-width: 640px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+    }
+    .camera-container {
+        text-align: center;
+        margin: 20px 0;
+    }
+    .controls {
+        margin: 20px 0;
+    }
+    .status-message {
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 4px;
+        font-weight: bold;
+    }
+    .status-success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+    .status-error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+    .status-info {
+        background-color: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
+    }
+    #recognized-students {
+        margin-top: 20px;
+    }
+    .student-card {
+        border: 1px solid #ddd;
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+    }
+</style>
+{% endblock custom_css %}
+{% block content %}
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">{{page_title}}</h3>
+                    </div>
+                    <div class="card-body">
+                        {% if not face_recognition_available %}
+                        <div class="alert alert-warning">
+                            <strong>Warning:</strong> Face recognition library is not installed. Please install required dependencies.
+                        </div>
+                        {% endif %}
+
+                        <!-- Subject and Session Selection -->
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Subject</label>
+                                    <select name="subject" class="form-control" id='subject'>
+                                        <option value="">----</option>
+                                        {% for subject in subjects  %}
+                                        <option value="{{subject.id}}">{{subject.name}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Session Year</label>
+                                    <select name="session" id='session' class="form-control">
+                                        <option value="">----</option>
+                                        {% for session in sessions  %}
+                                        <option value="{{session.id}}">{{session}} </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Attendance Date</label>
+                                    <input type="date" class='form-control' name="attendance_date" id='attendance_date'>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Mode Selection -->
+                        <div class="form-group">
+                            <label>Mode</label>
+                            <select class="form-control" id="mode_selector">
+                                <option value="recognize">Mark Attendance (Face Recognition)</option>
+                                <option value="register">Register Student Faces</option>
+                            </select>
+                        </div>
+
+                        <!-- Register Faces Section -->
+                        <div id="register_section" style="display: none;">
+                            <div class="form-group">
+                                <button type="button" id='fetch_students_for_register' class="btn btn-info">Fetch Students</button>
+                            </div>
+                            
+                            <!-- Camera for Registration -->
+                            <div class="camera-container" id="register_camera_container">
+                                <video id="video_register" autoplay playsinline></video>
+                                <canvas id="canvas_register" style="display: none;"></canvas>
+                            </div>
+                            
+                            <div class="controls" id="register_controls">
+                                <button type="button" id="startCameraRegister" class="btn btn-success">Start Camera</button>
+                                <button type="button" id="stopCameraRegister" class="btn btn-danger" style="display: none;">Stop Camera</button>
+                            </div>
+                            
+                            <div id="student_list_container"></div>
+                        </div>
+
+                        <!-- Face Recognition Section -->
+                        <div id="recognize_section">
+                            <div class="camera-container">
+                                <video id="video" autoplay playsinline></video>
+                                <canvas id="canvas" style="display: none;"></canvas>
+                            </div>
+                            
+                            <div class="controls">
+                                <button type="button" id="startCamera" class="btn btn-success">Start Camera</button>
+                                <button type="button" id="stopCamera" class="btn btn-danger" style="display: none;">Stop Camera</button>
+                                <button type="button" id="captureAndRecognize" class="btn btn-primary" style="display: none;">Mark Attendance</button>
+                            </div>
+
+                            <div id="status_message"></div>
+                            <div id="recognized-students"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
+
+{% block custom_js %}
+<script>
+let stream = null;
+let streamRegister = null;
+let video = document.getElementById('video');
+let videoRegister = document.getElementById('video_register');
+let canvas = document.getElementById('canvas');
+let canvasRegister = document.getElementById('canvas_register');
+let ctx = canvas.getContext('2d');
+let ctxRegister = canvasRegister.getContext('2d');
+
+$(document).ready(function () {
+    // Mode selector change
+    $('#mode_selector').change(function() {
+        if ($(this).val() === 'register') {
+            $('#register_section').show();
+            $('#recognize_section').hide();
+            // Stop recognition camera if running
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+                video.srcObject = null;
+            }
+        } else {
+            $('#register_section').hide();
+            $('#recognize_section').show();
+            // Stop registration camera if running
+            if (streamRegister) {
+                streamRegister.getTracks().forEach(track => track.stop());
+                streamRegister = null;
+                videoRegister.srcObject = null;
+            }
+        }
+    });
+
+    // Start camera
+    $('#startCamera').click(function() {
+        const subject = $('#subject').val();
+        const session = $('#session').val();
+        const date = $('#attendance_date').val();
+        
+        if (!subject || !session || !date) {
+            alert('Please select subject, session, and date first');
+            return;
+        }
+
+        navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } })
+            .then(function(mediaStream) {
+                stream = mediaStream;
+                video.srcObject = stream;
+                $('#startCamera').hide();
+                $('#stopCamera').show();
+                $('#captureAndRecognize').show();
+                showStatus('Camera started. Position your face in front of the camera.', 'info');
+            })
+            .catch(function(err) {
+                console.error('Error accessing camera:', err);
+                alert('Error accessing camera. Please ensure you have granted camera permissions.');
+            });
+    });
+
+    // Stop camera
+    $('#stopCamera').click(function() {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+            video.srcObject = null;
+            $('#startCamera').show();
+            $('#stopCamera').hide();
+            $('#captureAndRecognize').hide();
+            showStatus('Camera stopped.', 'info');
+        }
+    });
+
+    // Capture and recognize
+    $('#captureAndRecognize').click(function() {
+        const subject = $('#subject').val();
+        const session = $('#session').val();
+        const date = $('#attendance_date').val();
+        
+        if (!subject || !session || !date) {
+            alert('Please select subject, session, and date first');
+            return;
+        }
+
+        // Set canvas dimensions to match video
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        
+        // Draw current video frame to canvas
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+        // Convert canvas to base64
+        const imageData = canvas.toDataURL('image/png');
+        
+        // Show loading
+        $(this).prop('disabled', true).text('Processing...');
+        showStatus('Recognizing face...', 'info');
+        
+        // Send to server for recognition
+        $.ajax({
+            url: "{% url 'recognize_face_and_mark_attendance' %}",
+            type: 'POST',
+            data: {
+                image: imageData,
+                subject: subject,
+                session: session,
+                date: date,
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            }
+        }).done(function (response) {
+            if (response.success) {
+                showStatus(response.message, 'success');
+                displayRecognizedStudent(response.recognized);
+            } else {
+                showStatus(response.message, 'error');
+            }
+        }).fail(function (response) {
+            showStatus('Error in recognizing face. Please try again.', 'error');
+        }).always(function() {
+            $('#captureAndRecognize').prop('disabled', false).text('Mark Attendance');
+        });
+    });
+
+    // Fetch students for registration
+    $('#fetch_students_for_register').click(function() {
+        const subject = $('#subject').val();
+        const session = $('#session').val();
+        
+        if (!subject || !session) {
+            alert('Please select subject and session');
+            return;
+        }
+
+        $.ajax({
+            url: "{% url 'get_students_for_face_registration' %}",
+            type: 'POST',
+            data: {
+                subject: subject,
+                session: session,
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            }
+        }).done(function (response) {
+            const students = JSON.parse(response);
+            displayStudentList(students);
+        }).fail(function (response) {
+            alert('Error fetching students');
+        });
+    });
+
+    // Start camera for registration
+    $('#startCameraRegister').click(function() {
+        navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } })
+            .then(function(mediaStream) {
+                streamRegister = mediaStream;
+                videoRegister.srcObject = streamRegister;
+                $('#startCameraRegister').hide();
+                $('#stopCameraRegister').show();
+                showStatus('Camera started. Position student face in front of the camera.', 'info');
+            })
+            .catch(function(err) {
+                console.error('Error accessing camera:', err);
+                alert('Error accessing camera. Please ensure you have granted camera permissions.');
+            });
+    });
+
+    // Stop camera for registration
+    $('#stopCameraRegister').click(function() {
+        if (streamRegister) {
+            streamRegister.getTracks().forEach(track => track.stop());
+            streamRegister = null;
+            videoRegister.srcObject = null;
+            $('#startCameraRegister').show();
+            $('#stopCameraRegister').hide();
+            showStatus('Camera stopped.', 'info');
+        }
+    });
+});
+
+function showStatus(message, type) {
+    const statusDiv = $('#status_message');
+    statusDiv.removeClass('status-success status-error status-info');
+    statusDiv.addClass('status-message status-' + type);
+    statusDiv.text(message);
+}
+
+function displayRecognizedStudent(student) {
+    const container = $('#recognized-students');
+    const card = $('<div class="student-card"></div>');
+    card.html(`
+        <h5>${student.name}</h5>
+        <p>Confidence: ${student.confidence}%</p>
+    `);
+    container.html(card);
+}
+
+function displayStudentList(students) {
+    const container = $('#student_list_container');
+    let html = '<div class="table-responsive"><table class="table table-bordered"><thead><tr><th>Student Name</th><th>Face Registered</th><th>Action</th></tr></thead><tbody>';
+    
+    students.forEach(function(student) {
+        const statusBadge = student.has_face_registered 
+            ? '<span class="badge badge-success">Yes</span>' 
+            : '<span class="badge badge-warning">No</span>';
+        
+        html += `<tr>
+            <td>${student.name}</td>
+            <td>${statusBadge}</td>
+            <td>
+                <button class="btn btn-sm btn-primary register-face-btn" data-student-id="${student.id}">
+                    ${student.has_face_registered ? 'Update Face' : 'Register Face'}
+                </button>
+            </td>
+        </tr>`;
+    });
+    
+    html += '</tbody></table></div>';
+    container.html(html);
+    
+    // Add click handlers for register buttons
+    $('.register-face-btn').click(function() {
+        const studentId = $(this).data('student-id');
+        registerStudentFace(studentId);
+    });
+}
+
+function registerStudentFace(studentId) {
+    // Check if camera is available (use register camera)
+    if (!streamRegister) {
+        alert('Please start the camera first by clicking "Start Camera" button');
+        return;
+    }
+    
+    // Capture image from registration camera
+    canvasRegister.width = videoRegister.videoWidth;
+    canvasRegister.height = videoRegister.videoHeight;
+    ctxRegister.drawImage(videoRegister, 0, 0, canvasRegister.width, canvasRegister.height);
+    const imageData = canvasRegister.toDataURL('image/png');
+    
+    // Show loading
+    const btn = $(`.register-face-btn[data-student-id="${studentId}"]`);
+    btn.prop('disabled', true).text('Processing...');
+    
+    // Send to server
+    $.ajax({
+        url: "{% url 'register_student_face' %}",
+        type: 'POST',
+        data: {
+            student_id: studentId,
+            image: imageData,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        }
+    }).done(function (response) {
+        if (response.success) {
+            alert(response.message);
+            // Refresh student list
+            $('#fetch_students_for_register').click();
+        } else {
+            alert(response.message);
+        }
+    }).fail(function (response) {
+        alert('Error registering face');
+    }).always(function() {
+        btn.prop('disabled', false);
+    });
+}
+
+// Clean up on page unload
+$(window).on('beforeunload', function() {
+    if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+    }
+    if (streamRegister) {
+        streamRegister.getTracks().forEach(track => track.stop());
+    }
+});
+</script>
+{% endblock custom_js %}
+
+
+
+

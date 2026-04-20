@@ -1,0 +1,72 @@
+<svg width="900" height="560" viewBox="0 0 900 560" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="900" y2="560" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFE7B8"/>
+      <stop offset="0.35" stop-color="#FBB97B"/>
+      <stop offset="0.7" stop-color="#69D7D0"/>
+      <stop offset="1" stop-color="#0E8D8C"/>
+    </linearGradient>
+    <linearGradient id="ground" x1="0" y1="360" x2="900" y2="560" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#A6E1B0"/>
+      <stop offset="1" stop-color="#78C3A6"/>
+    </linearGradient>
+    <linearGradient id="roof" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#F28C28"/>
+      <stop offset="1" stop-color="#D96B15"/>
+    </linearGradient>
+    <linearGradient id="window" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#DDF1FF"/>
+      <stop offset="1" stop-color="#A7D3F5"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="900" height="560" rx="30" fill="url(#sky)"/>
+  <circle cx="110" cy="96" r="34" fill="#FFF7D8" opacity="0.9"/>
+  <circle cx="185" cy="82" r="14" fill="#FFF7D8" opacity="0.65"/>
+  <circle cx="770" cy="112" r="22" fill="#FFF7D8" opacity="0.7"/>
+  <circle cx="825" cy="82" r="12" fill="#FFF7D8" opacity="0.55"/>
+
+  <path d="M0 362H900V560H0V362Z" fill="url(#ground)"/>
+  <path d="M0 405H900" stroke="#5AA37C" stroke-width="10" opacity="0.45"/>
+
+  <rect x="92" y="188" width="204" height="166" rx="12" fill="#F4F1E5"/>
+  <rect x="150" y="238" width="72" height="116" fill="#44638C"/>
+  <rect x="112" y="212" width="40" height="40" fill="url(#window)"/>
+  <rect x="236" y="212" width="40" height="40" fill="url(#window)"/>
+  <rect x="236" y="270" width="40" height="40" fill="url(#window)"/>
+  <polygon points="78,188 194,120 308,188" fill="url(#roof)"/>
+  <rect x="188" y="155" width="18" height="33" fill="#D96B15"/>
+
+  <rect x="554" y="170" width="226" height="184" rx="12" fill="#FBF7EA"/>
+  <rect x="612" y="235" width="60" height="119" fill="#34455B"/>
+  <rect x="576" y="200" width="44" height="44" fill="url(#window)"/>
+  <rect x="704" y="200" width="44" height="44" fill="url(#window)"/>
+  <rect x="704" y="258" width="44" height="44" fill="url(#window)"/>
+  <polygon points="538,170 667,98 780,170" fill="#D9821E"/>
+  <rect x="650" y="126" width="18" height="44" fill="#B56612"/>
+
+  <g transform="translate(302 283)">
+    <circle cx="54" cy="28" r="16" fill="#FFD6A6"/>
+    <rect x="37" y="44" width="34" height="52" rx="11" fill="#2A9D8F"/>
+    <line x1="40" y1="64" x2="12" y2="80" stroke="#2A9D8F" stroke-width="9" stroke-linecap="round"/>
+    <line x1="67" y1="64" x2="97" y2="80" stroke="#2A9D8F" stroke-width="9" stroke-linecap="round"/>
+    <line x1="44" y1="94" x2="20" y2="124" stroke="#284B63" stroke-width="9" stroke-linecap="round"/>
+    <line x1="66" y1="94" x2="92" y2="124" stroke="#284B63" stroke-width="9" stroke-linecap="round"/>
+  </g>
+
+  <g transform="translate(386 292)">
+    <circle cx="54" cy="22" r="15" fill="#FFD6A6"/>
+    <rect x="39" y="36" width="30" height="48" rx="10" fill="#F77F52"/>
+    <line x1="42" y1="54" x2="15" y2="70" stroke="#F77F52" stroke-width="8" stroke-linecap="round"/>
+    <line x1="65" y1="54" x2="94" y2="70" stroke="#F77F52" stroke-width="8" stroke-linecap="round"/>
+    <line x1="44" y1="83" x2="26" y2="110" stroke="#284B63" stroke-width="8" stroke-linecap="round"/>
+    <line x1="64" y1="83" x2="84" y2="110" stroke="#284B63" stroke-width="8" stroke-linecap="round"/>
+  </g>
+
+  <path d="M68 398H830" stroke="#5AA37C" stroke-width="8" opacity="0.65"/>
+
+  <g opacity="0.92">
+    <rect x="372" y="66" width="156" height="46" rx="23" fill="rgba(255,255,255,0.18)"/>
+    <text x="450" y="95" text-anchor="middle" fill="#FFFFFF" font-family="Poppins, Arial, sans-serif" font-size="20" font-weight="700">School Community</text>
+  </g>
+</svg>

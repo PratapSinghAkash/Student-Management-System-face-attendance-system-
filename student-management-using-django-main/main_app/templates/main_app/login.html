@@ -1,0 +1,1437 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Student Management System | Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="{% static 'plugins/fontawesome-free/css/all.min.css' %}">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Google Recaptcha -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            overflow-x: hidden;
+            overflow-y: auto;
+            position: relative;
+            padding: 24px 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Animated Background Shapes */
+        .bg-shapes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.3;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .shape-1 {
+            width: 500px;
+            height: 500px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            top: -200px;
+            left: -200px;
+            animation-delay: 0s;
+        }
+
+        .shape-2 {
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            bottom: -150px;
+            right: -150px;
+            animation-delay: 5s;
+        }
+
+        .shape-3 {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            top: 50%;
+            right: 10%;
+            animation-delay: 10s;
+        }
+
+        .shape-4 {
+            width: 350px;
+            height: 350px;
+            background: linear-gradient(135deg, #fa709a, #fee140);
+            bottom: 20%;
+            left: 5%;
+            animation-delay: 15s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translate(0, 0) scale(1);
+            }
+            25% {
+                transform: translate(50px, -50px) scale(1.1);
+            }
+            50% {
+                transform: translate(-30px, 30px) scale(0.9);
+            }
+            75% {
+                transform: translate(30px, 50px) scale(1.05);
+            }
+        }
+
+        /* Glassmorphism Container */
+        .login-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 450px;
+            padding: 20px;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            padding: 40px;
+            max-height: calc(100vh - 48px);
+            overflow-y: auto;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        .auth-switch {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+
+        .auth-switch button {
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .auth-switch button.active {
+            background: rgba(255, 255, 255, 0.28);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo-section h1 {
+            color: #fff;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+            animation: fadeInDown 1s ease-out;
+        }
+
+        .logo-section p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+            font-weight: 300;
+            animation: fadeInDown 1.2s ease-out;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 15px 50px 15px 20px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .form-control:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .input-icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.1rem;
+        }
+
+        .alert {
+            padding: 12px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            animation: shake 0.5s ease;
+            background: rgba(220, 53, 69, 0.2);
+            border: 1px solid rgba(220, 53, 69, 0.5);
+            color: #fff;
+            backdrop-filter: blur(10px);
+        }
+
+        .alert-success {
+            background: rgba(40, 167, 69, 0.24);
+            border: 1px solid rgba(40, 167, 69, 0.55);
+        }
+
+        .alert-warning {
+            background: rgba(255, 193, 7, 0.24);
+            border: 1px solid rgba(255, 193, 7, 0.55);
+        }
+
+        .alert-danger {
+            background: rgba(220, 53, 69, 0.24);
+            border: 1px solid rgba(220, 53, 69, 0.55);
+        }
+
+        .alert-info {
+            background: rgba(23, 162, 184, 0.24);
+            border: 1px solid rgba(23, 162, 184, 0.55);
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .checkbox-wrapper input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin-right: 10px;
+            cursor: pointer;
+            accent-color: #fff;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-submit::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn-submit:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        .forgot-password {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .twofa-note {
+            text-align: center;
+            margin-top: 14px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.88rem;
+        }
+
+        .twofa-note a {
+            color: #fff;
+            text-decoration: underline;
+        }
+
+        .forgot-password a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .forgot-password a:hover {
+            color: #fff;
+            text-decoration: underline;
+        }
+
+        .recaptcha-wrapper {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .divider-line {
+            margin: 24px 0 14px;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.26);
+        }
+
+        .register-title {
+            color: #fff;
+            margin-bottom: 12px;
+            font-size: 1.05rem;
+            font-weight: 600;
+        }
+
+        .otp-box {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 12px;
+        }
+
+        .small-note {
+            color: rgba(255, 255, 255, 0.86);
+            font-size: 0.83rem;
+            margin-bottom: 10px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .glass-card {
+                padding: 30px 20px;
+            }
+
+            .logo-section h1 {
+                font-size: 2rem;
+            }
+
+            .shape {
+                filter: blur(60px);
+            }
+        }
+
+        /* Loading Animation */
+        .btn-submit.loading {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .btn-submit.loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            margin-left: -10px;
+            margin-top: -10px;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .chatbot-toggle {
+            position: fixed;
+            right: 22px;
+            bottom: 22px;
+            z-index: 9999;
+            width: 58px;
+            height: 58px;
+            border: none;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #00b4d8, #0077b6);
+            color: #fff;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
+            font-size: 22px;
+            cursor: pointer;
+        }
+
+        .chatbot-panel {
+            position: fixed;
+            right: 22px;
+            bottom: 92px;
+            width: min(360px, calc(100vw - 26px));
+            max-height: 72vh;
+            display: none;
+            flex-direction: column;
+            border-radius: 16px;
+            overflow: hidden;
+            z-index: 9999;
+            background: rgba(14, 22, 39, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.32);
+        }
+
+        .chatbot-header {
+            padding: 12px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #0096c7, #023e8a);
+            color: #fff;
+        }
+
+        .chatbot-header small {
+            display: block;
+            opacity: 0.86;
+            font-size: 12px;
+        }
+
+        .chatbot-lang {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+
+        .chatbot-messages {
+            padding: 12px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-height: 220px;
+        }
+
+        .chat-row {
+            display: flex;
+        }
+
+        .chat-row.user {
+            justify-content: flex-end;
+        }
+
+        .chat-bubble {
+            max-width: 86%;
+            padding: 9px 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.4;
+            color: #fff;
+        }
+
+        .chat-row.bot .chat-bubble {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .chat-row.user .chat-bubble {
+            background: linear-gradient(135deg, #00b4d8, #0077b6);
+        }
+
+        .chatbot-input-wrap {
+            padding: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.18);
+            display: flex;
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.18);
+        }
+
+        .chatbot-input {
+            flex: 1;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+            padding: 9px 10px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .chatbot-send {
+            border: none;
+            border-radius: 10px;
+            padding: 0 13px;
+            background: #00b4d8;
+            color: #fff;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .chatbot-voice-btn {
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 0 11px;
+            background: rgba(255, 255, 255, 0.14);
+            color: #fff;
+            cursor: pointer;
+            min-width: 40px;
+        }
+
+        .chatbot-voice-btn.active {
+            background: #ef476f;
+            border-color: #ef476f;
+        }
+
+        @media (max-width: 480px) {
+            .chatbot-panel {
+                right: 10px;
+                bottom: 82px;
+                width: calc(100vw - 20px);
+            }
+
+            .chatbot-toggle {
+                right: 10px;
+                bottom: 12px;
+            }
+        }
+
+        /* Government school themed UI refresh */
+        body {
+            background: linear-gradient(135deg, #ffe29f 0%, #ffa99f 26%, #8fd3f4 60%, #84fab0 100%);
+            padding: 18px;
+        }
+
+        .page-shell {
+            width: min(1300px, 100%);
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 22px;
+            min-height: calc(100vh - 36px);
+            align-items: stretch;
+            z-index: 2;
+        }
+
+        .hero-panel {
+            background: linear-gradient(160deg, #ff6b57 0%, #ffb36b 34%, #1dbfb0 70%, #0f6f86 100%);
+            border-radius: 22px;
+            color: #fff;
+            padding: 34px;
+            box-shadow: 0 20px 44px rgba(41, 66, 98, 0.24);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 100%;
+            height: 100%;
+        }
+
+        .hero-kicker {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 999px;
+            padding: 6px 12px;
+            font-size: 12px;
+            letter-spacing: 0.3px;
+            margin-bottom: 16px;
+        }
+
+        .hero-panel h2 {
+            font-size: 2rem;
+            line-height: 1.2;
+            margin-bottom: 10px;
+        }
+
+        .hero-panel p {
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .hero-points {
+            margin-top: 16px;
+        }
+
+        .hero-points div {
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .hero-slideshow {
+            position: relative;
+            min-height: 180px;
+            margin-top: 18px;
+            margin-bottom: 18px;
+        }
+
+        .hero-slide {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            gap: 10px;
+            align-content: center;
+            padding: 18px 20px;
+            border-radius: 18px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.08));
+            border: 1px solid rgba(255, 255, 255, 0.24);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            opacity: 0;
+            transform: translateY(10px) scale(0.98);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .hero-slide.active {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .hero-slide small {
+            display: inline-flex;
+            width: fit-content;
+            padding: 5px 10px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.18);
+            letter-spacing: 0.2px;
+            font-size: 12px;
+        }
+
+        .hero-slide h3 {
+            font-size: 1.2rem;
+            line-height: 1.25;
+            margin: 0;
+        }
+
+        .hero-slide p {
+            margin: 0;
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.92);
+        }
+
+        .run-visual {
+            width: 100%;
+            border-radius: 16px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.06));
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            margin-top: 22px;
+            overflow: hidden;
+        }
+
+        .run-visual img,
+        .run-visual svg {
+            width: 100%;
+            border-radius: 12px;
+            height: auto;
+            display: block;
+        }
+
+        .run-visual img {
+            object-fit: cover;
+            aspect-ratio: 760 / 340;
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .login-container {
+            max-width: 100%;
+            padding: 0;
+            display: flex;
+            align-self: stretch;
+            min-height: 100%;
+        }
+
+        .glass-card {
+            background: linear-gradient(180deg, #ffffff 0%, #f4fffc 100%);
+            border: 1px solid #cfe7dd;
+            box-shadow: 0 16px 36px rgba(19, 53, 102, 0.14);
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            width: 100%;
+            height: 100%;
+            min-height: 100%;
+            overflow-y: auto;
+            padding: 30px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            background: linear-gradient(90deg, #ff6b57, #ffcf70, #1dbfb0, #0f6f86);
+        }
+
+        .card-scroll {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-section h1 {
+            color: #0d5b42;
+            text-shadow: none;
+            font-size: 2rem;
+            margin-bottom: 6px;
+            background: linear-gradient(90deg, #0b5b46, #0f6f86);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .logo-section p {
+            color: #4b5e56;
+        }
+
+        .auth-switch button {
+            color: #0e4f3a;
+            background: #e9f6ef;
+            border-color: #c7e7d7;
+        }
+
+        .auth-switch button.active {
+            color: #fff;
+            background: linear-gradient(135deg, #ff6b57, #0f6f86);
+            border-color: transparent;
+        }
+
+        .form-control {
+            color: #163b2f;
+            background: #f8fcfa;
+            border: 1px solid #c9ddd2;
+        }
+
+        .form-control::placeholder {
+            color: #6c8278;
+        }
+
+        .form-control:focus {
+            background: #fff;
+            border-color: #0f6f86;
+            box-shadow: 0 0 0 3px rgba(15, 111, 134, 0.14);
+            transform: none;
+        }
+
+        .input-icon {
+            color: #4f7868;
+        }
+
+        .checkbox-wrapper,
+        .forgot-password a,
+        .twofa-note,
+        .twofa-note a,
+        .register-title,
+        .small-note {
+            color: #355347;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #ff6b57 0%, #0f6f86 100%);
+            box-shadow: 0 10px 22px rgba(45, 73, 115, 0.24);
+        }
+
+        .btn-submit:hover {
+            box-shadow: 0 12px 24px rgba(45, 73, 115, 0.34);
+        }
+
+        .otp-box {
+            background: linear-gradient(180deg, rgba(31, 191, 176, 0.08), rgba(255, 255, 255, 0.92));
+            border: 1px solid rgba(31, 191, 176, 0.18);
+        }
+
+        .hero-points {
+            padding-top: 4px;
+        }
+
+        .hero-points div {
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .hero-points div:last-child {
+            border-bottom: none;
+        }
+
+        .hero-points i {
+            margin-right: 8px;
+        }
+
+        .divider-line {
+            background: #d6e6dc;
+        }
+
+        .right-side-visual {
+            margin-top: 16px;
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid #cfe2d8;
+            background: linear-gradient(180deg, #effaf6, #e6f6f4);
+            box-shadow: 0 8px 20px rgba(33, 82, 99, 0.12);
+        }
+
+        .right-side-visual img {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 16 / 7;
+            object-fit: cover;
+            display: block;
+        }
+
+        @media (max-width: 980px) {
+            .page-shell {
+                grid-template-columns: 1fr;
+                min-height: auto;
+            }
+
+            .hero-panel {
+                min-height: auto;
+                height: auto;
+            }
+
+            .login-container {
+                min-height: auto;
+                height: auto;
+            }
+
+            .glass-card {
+                height: auto;
+                min-height: auto;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-panel {
+                display: none;
+            }
+
+            .login-container {
+                width: 100%;
+            }
+
+            .glass-card {
+                padding: 22px 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Animated Background Shapes -->
+    <div class="bg-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+        <div class="shape shape-4"></div>
+    </div>
+
+    <div class="page-shell">
+        <aside class="hero-panel">
+            <div>
+                <span class="hero-kicker">Government School Portal</span>
+                <h2>Welcome to Automated Attendance System for Rural Government School</h2>
+                <p>A single portal for attendance, notices, courses, and secure student access.</p>
+                <div class="hero-slideshow" aria-live="polite">
+                    <div class="hero-slide active">
+                        <small>Attendance</small>
+                        <h3>Track presence in a clean, central dashboard.</h3>
+                        <p>Teachers and students can manage attendance without switching tools.</p>
+                    </div>
+                    <div class="hero-slide">
+                        <small>Admissions</small>
+                        <h3>Register students with a secure email and mobile verification flow.</h3>
+                        <p>Simple signup, two-step verification, and safer onboarding.</p>
+                    </div>
+                    <div class="hero-slide">
+                        <small>Support</small>
+                        <h3>Use the assistant for quick guidance any time of day.</h3>
+                        <p>Built-in help is available in multiple languages for easier access.</p>
+                    </div>
+                </div>
+                <div class="hero-points">
+                    <div><i class="fas fa-check-circle"></i> Inclusive public education workflow</div>
+                    <div><i class="fas fa-check-circle"></i> Secure login for staff and students</div>
+                    <div><i class="fas fa-check-circle"></i> Multilingual 24/7 assistant enabled</div>
+                </div>
+            </div>
+            <div class="run-visual" aria-hidden="true">
+                <img src="{% static 'images/login_school_scene.svg' %}" alt="School illustration showing students and buildings">
+            </div>
+        </aside>
+
+        <!-- Login Container -->
+        <div class="login-container">
+        <div class="glass-card">
+            <div class="card-scroll">
+            <!-- Logo Section -->
+            <div class="logo-section">
+                <h1>Student Management</h1>
+                <p>Sign in to start your session</p>
+            </div>
+
+            <!-- Error Messages -->
+            {% if messages %}
+                <div class="col-12">
+                    {% for message in messages %}
+                        <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'warning' %}alert-warning{% elif message.tags == 'error' %}alert-danger{% else %}alert-info{% endif %}">
+                            <i class="fas fa-info-circle"></i> {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="auth-switch">
+                <button type="button" id="showSignInBtn" class="active">Sign In</button>
+                <button type="button" id="showSignUpBtn">Create Account</button>
+            </div>
+
+            <div id="signInSection">
+
+            <!-- Login Form -->
+            <form action="{% url 'user_login' %}" method="post" id="loginForm">
+                {% csrf_token %}
+                
+                <!-- Email Input -->
+                <div class="form-group">
+                    <div class="input-wrapper">
+                        <input 
+                            type="email" 
+                            name="email" 
+                            class="form-control" 
+                            placeholder="Email Address" 
+                            required
+                            autocomplete="email"
+                        >
+                        <span class="input-icon">
+                            <i class="fas fa-envelope"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Password Input -->
+                <div class="form-group">
+                    <div class="input-wrapper">
+                        <input 
+                            type="password" 
+                            name="password" 
+                            class="form-control" 
+                            placeholder="Password" 
+                            required
+                            autocomplete="current-password"
+                        >
+                        <span class="input-icon">
+                            <i class="fas fa-lock"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- reCAPTCHA -->
+                <div class="form-group">
+                    <div class="recaptcha-wrapper">
+                        <div class="g-recaptcha" data-sitekey="6LfswtgZAAAAAJ7bhwqZZtDpBsc75ekH6FWA4Fnt"></div>
+                    </div>
+                </div>
+
+                <!-- Remember Me -->
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" id="remember" name="remember">
+                    <label for="remember">Remember Me</label>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn-submit">
+                    <span class="btn-text">Sign In</span>
+                </button>
+            </form>
+
+            <!-- Forgot Password -->
+            <div class="forgot-password">
+                <a href="{% url 'password_reset' %}">
+                    <i class="fas fa-key"></i> I forgot my password
+                </a>
+            </div>
+
+            <div class="twofa-note">
+                Authenticator code is requested after password login only for users with 2FA enabled.
+                <br>
+                If your OTP step was interrupted, continue at <a href="{% url 'verify_totp' %}">Verify OTP</a>.
+            </div>
+
+            <div class="right-side-visual" aria-hidden="true">
+                <img src="{% static 'images/login_school_scene.svg' %}" alt="School campus illustration">
+            </div>
+
+            </div>
+
+            <div id="signUpSection" style="display: none;">
+
+            <div class="divider-line"></div>
+
+            <div class="register-title">Create Account</div>
+            <form action="{% url 'start_registration' %}" method="post" id="registerStartForm">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <div class="input-wrapper">
+                        <input type="text" name="first_name" class="form-control" placeholder="First Name" required>
+                        <span class="input-icon"><i class="fas fa-user"></i></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-wrapper">
+                        <input type="text" name="last_name" class="form-control" placeholder="Last Name" required>
+                        <span class="input-icon"><i class="fas fa-user"></i></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-wrapper">
+                        <input type="email" name="email" class="form-control" placeholder="Email Address" required>
+                        <span class="input-icon"><i class="fas fa-envelope"></i></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-wrapper">
+                        <input type="text" name="mobile_number" class="form-control" placeholder="Mobile Number" required>
+                        <span class="input-icon"><i class="fas fa-mobile-alt"></i></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-wrapper">
+                        <input type="password" name="password" class="form-control" placeholder="Create Password" required>
+                        <span class="input-icon"><i class="fas fa-lock"></i></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-wrapper">
+                        <input type="password" name="confirm_password" class="form-control" placeholder="Confirm Password" required>
+                        <span class="input-icon"><i class="fas fa-lock"></i></span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    <span class="btn-text">Send Verification Codes</span>
+                </button>
+            </form>
+
+            {% if registration_pending %}
+            <div class="otp-box">
+                <div class="small-note">Enter verification codes sent to your email and mobile to complete registration.</div>
+                <form action="{% url 'complete_registration' %}" method="post" id="registerCompleteForm">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <div class="input-wrapper">
+                            <input type="text" name="email_otp" class="form-control" placeholder="Email OTP" required>
+                            <span class="input-icon"><i class="fas fa-key"></i></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="input-wrapper">
+                            <input type="text" name="mobile_otp" class="form-control" placeholder="Mobile OTP" required>
+                            <span class="input-icon"><i class="fas fa-key"></i></span>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-submit">
+                        <span class="btn-text">Verify and Register</span>
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="chatbot-toggle" id="chatbotToggle" type="button" aria-label="Open chatbot">
+        <i class="fas fa-comments"></i>
+    </button>
+
+    <section class="chatbot-panel" id="chatbotPanel" aria-live="polite">
+        <header class="chatbot-header">
+            <div>
+                <strong>Help Assistant</strong>
+                <small>Online 24/7</small>
+            </div>
+            <select id="chatbotLanguage" class="chatbot-lang" aria-label="Select language">
+                <option value="en">English</option>
+                <option value="hi">Hindi</option>
+                <option value="es">Spanish</option>
+                <option value="fr">French</option>
+            </select>
+        </header>
+        <div class="chatbot-messages" id="chatbotMessages"></div>
+        <div class="chatbot-input-wrap">
+            <input class="chatbot-input" id="chatbotInput" type="text" placeholder="Ask something..." maxlength="500">
+            <button class="chatbot-voice-btn" id="chatbotMic" type="button" aria-label="Voice input">
+                <i class="fas fa-microphone"></i>
+            </button>
+            <button class="chatbot-voice-btn" id="chatbotTtsToggle" type="button" aria-label="Toggle voice response" title="Voice response on/off">
+                <i class="fas fa-volume-up"></i>
+            </button>
+            <button class="chatbot-send" id="chatbotSend" type="button">Send</button>
+        </div>
+    </section>
+
+    <!-- jQuery -->
+    <script src="{% static 'plugins/jquery/jquery.min.js' %}"></script>
+    
+    <script>
+        // Form submission with loading animation
+        $(document).ready(function() {
+            function getCookie(name) {
+                const value = `; ${document.cookie}`;
+                const parts = value.split(`; ${name}=`);
+                if (parts.length === 2) {
+                    return parts.pop().split(';').shift();
+                }
+                return null;
+            }
+
+            function syncCsrfTokens() {
+                const csrfToken = getCookie('csrftoken');
+                if (!csrfToken) {
+                    return;
+                }
+                document.querySelectorAll('input[name="csrfmiddlewaretoken"]').forEach(function(input) {
+                    input.value = csrfToken;
+                });
+            }
+
+            syncCsrfTokens();
+
+            const signInSection = document.getElementById('signInSection');
+            const signUpSection = document.getElementById('signUpSection');
+            const showSignInBtn = document.getElementById('showSignInBtn');
+            const showSignUpBtn = document.getElementById('showSignUpBtn');
+            const registrationPending = {{ registration_pending|yesno:"true,false" }};
+
+            function switchAuthTab(tabName) {
+                const showSignUp = tabName === 'signup';
+                signInSection.style.display = showSignUp ? 'none' : 'block';
+                signUpSection.style.display = showSignUp ? 'block' : 'none';
+                showSignInBtn.classList.toggle('active', !showSignUp);
+                showSignUpBtn.classList.toggle('active', showSignUp);
+            }
+
+            const heroSlides = Array.from(document.querySelectorAll('.hero-slide'));
+            let heroSlideIndex = 0;
+
+            function rotateHeroSlide() {
+                if (!heroSlides.length) {
+                    return;
+                }
+
+                heroSlides[heroSlideIndex].classList.remove('active');
+                heroSlideIndex = (heroSlideIndex + 1) % heroSlides.length;
+                heroSlides[heroSlideIndex].classList.add('active');
+            }
+
+            if (heroSlides.length > 1) {
+                setInterval(rotateHeroSlide, 4200);
+            }
+
+            showSignInBtn.addEventListener('click', function() {
+                switchAuthTab('signin');
+            });
+
+            showSignUpBtn.addEventListener('click', function() {
+                switchAuthTab('signup');
+            });
+
+            if (registrationPending) {
+                switchAuthTab('signup');
+            }
+
+            $('#loginForm').on('submit', function() {
+                syncCsrfTokens();
+                const btn = $(this).find('.btn-submit');
+                btn.addClass('loading');
+                btn.find('.btn-text').text('Signing in...');
+            });
+
+            $('#registerStartForm').on('submit', function() {
+                syncCsrfTokens();
+            });
+
+            $('#registerCompleteForm').on('submit', function() {
+                syncCsrfTokens();
+            });
+
+            // Add focus animations
+            $('.form-control').on('focus', function() {
+                $(this).parent().addClass('focused');
+            }).on('blur', function() {
+                $(this).parent().removeClass('focused');
+            });
+
+            // Add floating animation to shapes on mouse move
+            $(document).on('mousemove', function(e) {
+                const shapes = $('.shape');
+                const mouseX = e.clientX / window.innerWidth;
+                const mouseY = e.clientY / window.innerHeight;
+                
+                shapes.each(function(index) {
+                    const speed = (index + 1) * 0.5;
+                    const x = (mouseX - 0.5) * speed * 20;
+                    const y = (mouseY - 0.5) * speed * 20;
+                    $(this).css('transform', `translate(${x}px, ${y}px)`);
+                });
+            });
+        });
+
+        (function() {
+            const toggleButton = document.getElementById('chatbotToggle');
+            const chatbotPanel = document.getElementById('chatbotPanel');
+            const messagesBox = document.getElementById('chatbotMessages');
+            const input = document.getElementById('chatbotInput');
+            const sendBtn = document.getElementById('chatbotSend');
+            const languageSelect = document.getElementById('chatbotLanguage');
+            const micBtn = document.getElementById('chatbotMic');
+            const ttsToggleBtn = document.getElementById('chatbotTtsToggle');
+            const endpoint = "{% url 'website_chatbot' %}";
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const hasSpeechRecognition = !!SpeechRecognition;
+            const hasSpeechSynthesis = 'speechSynthesis' in window;
+            let recognition = null;
+            let ttsEnabled = true;
+
+            function getSpeechLocale(languageCode) {
+                const localeMap = {
+                    en: 'en-US',
+                    hi: 'hi-IN',
+                    es: 'es-ES',
+                    fr: 'fr-FR'
+                };
+                return localeMap[languageCode] || 'en-US';
+            }
+
+            function speakReply(text) {
+                if (!ttsEnabled || !hasSpeechSynthesis || !text) {
+                    return;
+                }
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = getSpeechLocale(languageSelect.value);
+                utterance.rate = 1;
+                utterance.pitch = 1;
+                window.speechSynthesis.cancel();
+                window.speechSynthesis.speak(utterance);
+            }
+
+            function appendMessage(text, role) {
+                const row = document.createElement('div');
+                row.className = `chat-row ${role}`;
+                const bubble = document.createElement('div');
+                bubble.className = 'chat-bubble';
+                bubble.textContent = text;
+                row.appendChild(bubble);
+                messagesBox.appendChild(row);
+                messagesBox.scrollTop = messagesBox.scrollHeight;
+                if (role === 'bot') {
+                    speakReply(text);
+                }
+            }
+
+            async function sendMessage() {
+                const message = input.value.trim();
+                if (!message) {
+                    return;
+                }
+
+                appendMessage(message, 'user');
+                input.value = '';
+                sendBtn.disabled = true;
+
+                try {
+                    const response = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            message,
+                            language: languageSelect.value
+                        })
+                    });
+                    const data = await response.json();
+                    appendMessage(data.reply || 'Sorry, I did not understand that.', 'bot');
+                } catch (error) {
+                    appendMessage('Service is temporarily unavailable. Please try again.', 'bot');
+                } finally {
+                    sendBtn.disabled = false;
+                    input.focus();
+                }
+            }
+
+            function openChat() {
+                chatbotPanel.style.display = 'flex';
+                if (!messagesBox.dataset.welcomeShown) {
+                    appendMessage('Hi! I am online 24/7. You can ask in English, Hindi, Spanish, or French.', 'bot');
+                    messagesBox.dataset.welcomeShown = 'true';
+                }
+                input.focus();
+            }
+
+            toggleButton.addEventListener('click', function() {
+                const isVisible = chatbotPanel.style.display === 'flex';
+                chatbotPanel.style.display = isVisible ? 'none' : 'flex';
+                if (!isVisible) {
+                    openChat();
+                }
+            });
+
+            sendBtn.addEventListener('click', sendMessage);
+
+            if (hasSpeechRecognition) {
+                recognition = new SpeechRecognition();
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                recognition.maxAlternatives = 1;
+
+                recognition.onresult = function(event) {
+                    const transcript = event.results[0][0].transcript || '';
+                    input.value = transcript.trim();
+                    micBtn.classList.remove('active');
+                    input.focus();
+                };
+
+                recognition.onerror = function() {
+                    micBtn.classList.remove('active');
+                    appendMessage('Voice input failed. Please type your question.', 'bot');
+                };
+
+                recognition.onend = function() {
+                    micBtn.classList.remove('active');
+                };
+
+                micBtn.addEventListener('click', function() {
+                    recognition.lang = getSpeechLocale(languageSelect.value);
+                    micBtn.classList.add('active');
+                    recognition.start();
+                });
+            } else {
+                micBtn.disabled = true;
+                micBtn.title = 'Speech input is not supported in this browser';
+            }
+
+            ttsToggleBtn.addEventListener('click', function() {
+                ttsEnabled = !ttsEnabled;
+                ttsToggleBtn.classList.toggle('active', !ttsEnabled);
+                ttsToggleBtn.innerHTML = ttsEnabled
+                    ? '<i class="fas fa-volume-up"></i>'
+                    : '<i class="fas fa-volume-mute"></i>';
+                if (!ttsEnabled && hasSpeechSynthesis) {
+                    window.speechSynthesis.cancel();
+                }
+            });
+
+            if (!hasSpeechSynthesis) {
+                ttsToggleBtn.disabled = true;
+                ttsToggleBtn.title = 'Voice output is not supported in this browser';
+            }
+
+            input.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    sendMessage();
+                }
+            });
+        })();
+    </script>
+</body>
+</html>
